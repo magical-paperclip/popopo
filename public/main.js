@@ -20,9 +20,19 @@ const state = {
 };
 
 const playerCountElem = document.getElementById('playerCount');
+const leaderboardElem = document.getElementById('leaderboard');
 
 function updateHud() {
-  playerCountElem.textContent = Object.keys(state.players).length;
+  const alivePlayers = Object.values(state.players);
+  playerCountElem.textContent = alivePlayers.length;
+  // sort by score desc
+  const sorted = alivePlayers
+    .filter(p => p.score !== undefined)
+    .sort((a, b) => b.score - a.score)
+    .slice(0, 5);
+  leaderboardElem.innerHTML = sorted
+    .map(p => `<li>${p.id === meId ? '<b>You</b>' : 'P'}: ${p.score?.toFixed(1) ?? 0}%</li>`)
+    .join('');
 }
 
 // Handle server messages

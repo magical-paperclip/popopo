@@ -28,3 +28,13 @@ body {
   font-family: 'Segoe UI', Tahoma, sans-serif;
   pointer-events: none;
 }
+
+#leaderboard {
+  list-style: none;
+  padding: 0;
+  margin: 4px 0 0 0;
+  font-size: 14px;
+}
+#leaderboard li {
+  margin: 2px 0;
+}
