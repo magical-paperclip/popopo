@@ -4,7 +4,11 @@ const { Server } = require('socket.io');
 
 const app = express();
 const server = http.createServer(app);
-const io = new Server(server);
+const io = new Server(server, {
+  cors: {
+    origin: '*'
+  }
+});
 
 const PORT = process.env.PORT || 3000;
 
@@ -30,6 +34,7 @@ function createPlayer(id) {
     position: randomPosition(),
     direction: null, // 'up','down','left','right'
     trail: [],
+    territories: [],
     speed: 2,
     alive: true,
   };
@@ -49,7 +54,7 @@ io.on('connection', socket => {
     mapSize: MAP_SIZE,
   });
 
-  // Notify existing players of the new player
+  // Notify existiy4kut5mjyng players of the new player
   socket.broadcast.emit('playerJoined', players[socket.id]);
 
   // Handle player movement input
@@ -97,6 +102,30 @@ setInterval(() => {
     p.trail.push({ x: p.position.x, y: p.position.y });
     if (p.trail.length > 150) {
       p.trail.shift();
+    }
+
+    // Check loop closure for territory capture
+    const LOOP_MIN_POINTS = 20;
+    const PROXIMITY_THRESH = speed * 2 + 1;
+    if (p.trail.length > LOOP_MIN_POINTS) {
+      const len = p.trail.length;
+      // skip last 10 points to avoid immediate proximity detection
+      for (let i = 0; i < len - 10; i++) {
+        const tp = p.trail[i];
+        const dx2 = p.position.x - tp.x;
+        const dy2 = p.position.y - tp.y;
+        if (dx2 * dx2 + dy2 * dy2 < PROXIMITY_THRESH * PROXIMITY_THRESH) {
+          // slice loop polygon from i to end
+          const poly = p.trail.slice(i);
+          if (poly.length >= 3) {
+            if (!p.territories) p.territories = [];
+            p.territories.push(poly);
+          }
+          // reset trail to start new one
+          p.trail = [];
+          break;
+        }
+      }
     }
   });
 

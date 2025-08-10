@@ -19,25 +19,35 @@ const state = {
   powerups: [],
 };
 
+const playerCountElem = document.getElementById('playerCount');
+
+function updateHud() {
+  playerCountElem.textContent = Object.keys(state.players).length;
+}
+
 // Handle server messages
 socket.on('init', data => {
   meId = data.id;
   Object.assign(state.players, data.players);
   state.powerups = data.powerups;
   mapSize = data.mapSize;
+  updateHud();
 });
 
 socket.on('playerJoined', player => {
   state.players[player.id] = player;
+  updateHud();
 });
 
 socket.on('playerLeft', id => {
   delete state.players[id];
+  updateHud();
 });
 
 socket.on('state', newState => {
   Object.assign(state.players, newState.players);
   state.powerups = newState.powerups;
+  updateHud();
 });
 
 // Movement input
@@ -72,7 +82,25 @@ function draw() {
     ctx.fill();
   });
 
-  // Draw each player
+  // Draw player territories
+  ctx.fillStyle = '#5d3b09';
+  Object.values(state.players).forEach(p => {
+    if (!p.territories) return;
+    p.territories.forEach(poly => {
+      if (poly.length < 3) return;
+      ctx.beginPath();
+      poly.forEach((pt, idx) => {
+        const sx = pt.x * scale;
+        const sy = pt.y * scale;
+        if (idx === 0) ctx.moveTo(sx, sy);
+        else ctx.lineTo(sx, sy);
+      });
+      ctx.closePath();
+      ctx.fill();
+    });
+  });
+
+  // Trails and player nodes
   Object.values(state.players).forEach(p => {
     // Trail
     ctx.strokeStyle = 'brown';

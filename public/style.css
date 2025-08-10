@@ -12,3 +12,19 @@ html, body {
   height: 100vh;
   background-color: #f9f9f9;
 }
+
+body {
+  background-color: #222;
+}
+
+#hud {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  background: rgba(0, 0, 0, 0.6);
+  color: #fff;
+  padding: 8px 14px;
+  border-radius: 8px;
+  font-family: 'Segoe UI', Tahoma, sans-serif;
+  pointer-events: none;
+}
