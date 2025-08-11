@@ -28,6 +28,11 @@ function randomPosition() {
   };
 }
 
+function randomColor() {
+  const h = Math.floor(Math.random() * 360);
+  return `hsl(${h}, 70%, 50%)`;
+}
+
 function createPlayer(id) {
   return {
     id,
@@ -37,6 +42,7 @@ function createPlayer(id) {
     territories: [],
     speed: 2,
     alive: true,
+    color: randomColor(),
   };
 }
 

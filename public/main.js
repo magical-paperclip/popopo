@@ -22,16 +22,16 @@ const state = {
 const playerCountElem = document.getElementById('playerCount');
 const leaderboardElem = document.getElementById('leaderboard');
 
+// Update HUD function
 function updateHud() {
   const alivePlayers = Object.values(state.players);
   playerCountElem.textContent = alivePlayers.length;
-  // sort by score desc
   const sorted = alivePlayers
     .filter(p => p.score !== undefined)
     .sort((a, b) => b.score - a.score)
     .slice(0, 5);
   leaderboardElem.innerHTML = sorted
-    .map(p => `<li>${p.id === meId ? '<b>You</b>' : 'P'}: ${p.score?.toFixed(1) ?? 0}%</li>`)
+    .map(p => `<li><span class="colorBox" style="background:${p.color}"></span>${p.id === meId ? '<b>You</b>' : 'Player'}: ${p.score?.toFixed(1) ?? 0}%</li>`)
     .join('');
 }
 
@@ -75,27 +75,16 @@ window.addEventListener('keydown', e => {
   }
 });
 
-// Render loop
+// -------------------- Rendering --------------------
 function draw() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
+  const scale = Math.min(canvas.width, canvas.height) / mapSize;
 
-  // Convert world coords to screen coords (simple scaling)
-  const scaleX = canvas.width / mapSize;
-  const scaleY = canvas.height / mapSize;
-  const scale = Math.min(scaleX, scaleY);
-
-  // Draw powerups (placeholder)
-  ctx.fillStyle = 'gold';
-  state.powerups.forEach(pu => {
-    ctx.beginPath();
-    ctx.arc(pu.x * scale, pu.y * scale, 8, 0, Math.PI * 2);
-    ctx.fill();
-  });
-
-  // Draw player territories
-  ctx.fillStyle = '#5d3b09';
+  // Territory fill
   Object.values(state.players).forEach(p => {
     if (!p.territories) return;
+    ctx.globalAlpha = 0.3;
+    ctx.fillStyle = p.color;
     p.territories.forEach(poly => {
       if (poly.length < 3) return;
       ctx.beginPath();
@@ -108,13 +97,13 @@ function draw() {
       ctx.closePath();
       ctx.fill();
     });
+    ctx.globalAlpha = 1;
   });
 
-  // Trails and player nodes
+  // Trails & nodes
   Object.values(state.players).forEach(p => {
-    // Trail
-    ctx.strokeStyle = 'brown';
-    ctx.lineWidth = 6;
+    ctx.strokeStyle = p.color;
+    ctx.lineWidth = 4;
     ctx.beginPath();
     p.trail.forEach((pt, idx) => {
       const sx = pt.x * scale;
@@ -124,11 +113,17 @@ function draw() {
     });
     ctx.stroke();
 
-    // Player node
-    ctx.fillStyle = p.id === meId ? 'red' : 'black';
+    // Node circle
+    ctx.fillStyle = p.color;
     ctx.beginPath();
-    ctx.arc(p.position.x * scale, p.position.y * scale, 10, 0, Math.PI * 2);
+    ctx.arc(p.position.x * scale, p.position.y * scale, 8, 0, Math.PI * 2);
     ctx.fill();
+
+    if (p.id === meId) {
+      ctx.strokeStyle = '#fff';
+      ctx.lineWidth = 2;
+      ctx.stroke();
+    }
   });
 
   requestAnimationFrame(draw);

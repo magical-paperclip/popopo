@@ -15,6 +15,7 @@ html, body {
 
 body {
   background-color: #222;
+  font-family: 'Poppins', Arial, sans-serif;
 }
 
 #hud {
@@ -27,6 +28,17 @@ body {
   border-radius: 8px;
   font-family: 'Segoe UI', Tahoma, sans-serif;
   pointer-events: none;
+  min-width: 160px;
+  font-size: 15px;
+}
+
+.colorBox {
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  border-radius: 3px;
+  margin-right: 6px;
+  vertical-align: middle;
 }
 
 #leaderboard {
